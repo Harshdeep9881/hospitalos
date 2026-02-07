@@ -41,4 +41,18 @@ router.delete("/delete/:id", (req, res) => {
     );
 });
 
+// UPDATE patient
+router.put("/update/:id", (req, res) => {
+    const id = req.params.id;
+    const { name, age, gender, phone } = req.body;
+
+    const sql =
+        "UPDATE patients SET name=?, age=?, gender=?, phone=? WHERE id=?";
+
+    db.query(sql, [name, age, gender, phone, id], (err) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: "Patient updated" });
+    });
+});
+
 module.exports = router;   // ✅ MUST BE PRESENT

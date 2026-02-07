@@ -266,12 +266,16 @@ p {
   font-weight: 500;
 }
 
+.table--patients .table__row {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .table--doctors .table__row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .table--appointments .table__row {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .table__row--header {
@@ -368,6 +372,31 @@ p {
   border-color: transparent;
 }
 
+.field__error {
+  font-size: 0.85rem;
+  color: #dc2626;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn--tiny {
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.btn--danger {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid rgba(185, 28, 28, 0.2);
+}
+
 .auth__hint {
   font-size: 0.9rem;
   color: var(--muted);
@@ -397,6 +426,41 @@ p {
 .form-grid button {
   grid-column: span 2;
   justify-self: start;
+}
+
+.form-grid .action-buttons {
+  grid-column: span 2;
+}
+
+.form-grid--appointments .action-buttons {
+  grid-column: span 4;
+}
+
+.toast-stack {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  gap: 10px;
+  z-index: 50;
+}
+
+.toast {
+  background: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  animation: fadeIn 0.25s ease;
+}
+
+.toast--success {
+  border-left: 4px solid #22c55e;
+}
+
+.toast--error {
+  border-left: 4px solid #ef4444;
 }
 
 .hero-card {
@@ -485,12 +549,24 @@ p {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .table--patients .table__row,
+  .table--doctors .table__row,
+  .table--appointments .table__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .form-grid,
   .form-grid--appointments {
     grid-template-columns: 1fr;
   }
 
   .form-grid button {
+    grid-column: span 1;
+    width: 100%;
+  }
+
+  .form-grid .action-buttons,
+  .form-grid--appointments .action-buttons {
     grid-column: span 1;
     width: 100%;
   }

@@ -47,4 +47,20 @@ router.delete("/delete/:id", (req, res) => {
     );
 });
 
+// ========================
+// UPDATE doctor
+// ========================
+router.put("/update/:id", (req, res) => {
+    const id = req.params.id;
+    const { name, department } = req.body;
+
+    const sql =
+        "UPDATE doctors SET name=?, department=? WHERE id=?";
+
+    db.query(sql, [name, department, id], (err) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: "Doctor updated" });
+    });
+});
+
 module.exports = router;

@@ -1,6 +1,41 @@
+import { useEffect, useMemo, useState } from "react";
+import api from "../api/axios";
 import Navbar from "../components/Navbar";
 
 export default function Dashboard() {
+  const [summary, setSummary] = useState(null);
+  const [summaryError, setSummaryError] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    api.get("/dashboard/summary")
+      .then((res) => {
+        if (!alive) return;
+        setSummary(res.data);
+        setSummaryError(false);
+      })
+      .catch(() => {
+        if (!alive) return;
+        setSummaryError(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const appointmentDelta = useMemo(() => {
+    if (!summary) return null;
+    return summary.todaysAppointments - summary.yesterdaysAppointments;
+  }, [summary]);
+
+  const appointmentDeltaLabel = useMemo(() => {
+    if (summaryError) return "Dashboard data unavailable";
+    if (appointmentDelta === null) return "Loading today’s total";
+    if (appointmentDelta === 0) return "Same as yesterday";
+    if (appointmentDelta > 0) return `+${appointmentDelta} vs yesterday`;
+    return `${appointmentDelta} vs yesterday`;
+  }, [appointmentDelta, summaryError]);
+
   return (
     <div className="app-shell">
       <Navbar />
@@ -16,13 +51,21 @@ export default function Dashboard() {
         <section className="card-grid">
           <article className="card">
             <h3>Today’s Appointments</h3>
-            <p className="metric">24</p>
-            <span className="muted">+4 vs yesterday</span>
+            <p className="metric">{summary ? summary.todaysAppointments : "—"}</p>
+            <span className="muted">{appointmentDeltaLabel}</span>
           </article>
           <article className="card">
             <h3>Available Doctors</h3>
-            <p className="metric">6</p>
-            <span className="muted">2 specialists on call</span>
+            <p className="metric">
+              {summary ? summary.availableDoctors : "—"}
+            </p>
+            <span className="muted">
+              {summary
+                ? `${summary.scheduledDoctors} scheduled today`
+                : summaryError
+                  ? "Dashboard data unavailable"
+                  : "Loading availability"}
+            </span>
           </article>
           <article className="card">
             <h3>Open Rooms</h3>

@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const login = async (event) => {
     event.preventDefault();
+    setError("");
+
     try {
       const res = await api.post("/auth/login", {
         email,
@@ -15,8 +19,8 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.token);
       window.location.href = "/dashboard";
-    } catch {
-      alert("Invalid credentials");
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid credentials");
     }
   };
 
@@ -54,13 +58,15 @@ export default function Login() {
             />
           </label>
 
+          {error ? <div className="field__error">{error}</div> : null}
+
           <button className="btn btn--primary" type="submit">
             Sign in
           </button>
         </form>
 
         <div className="auth__hint">
-          Use the demo admin credentials from the README.
+          New user? <Link className="auth__link" to="/signup">Create an account</Link>
         </div>
       </div>
 

@@ -402,6 +402,15 @@ p {
   color: var(--muted);
 }
 
+.auth__link {
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
+.auth__link:hover {
+  text-decoration: underline;
+}
+
 .auth__hero {
   display: grid;
   gap: 16px;

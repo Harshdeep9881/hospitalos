@@ -13,12 +13,13 @@ router.get("/", (req, res) => {
             a.doctor_id,
             p.name AS patient,
             d.name AS doctor,
-            d.department,
+            COALESCE(dep.name, d.department) AS department,
             a.appointment_date,
             a.appointment_time
         FROM appointments a
         JOIN patients p ON a.patient_id = p.id
         JOIN doctors d ON a.doctor_id = d.id
+        LEFT JOIN departments dep ON dep.id = d.department_id
         ORDER BY a.appointment_date DESC
     `;
 

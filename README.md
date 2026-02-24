@@ -73,6 +73,12 @@ Run this once on an existing database to add constraints, foreign key policies, 
 source backend/sql/001_data_quality.sql
 ```
 
+### Phase 1 migration (departments + doctor foreign key)
+Run this once to normalize doctor departments into a `departments` table:
+```
+source backend/sql/003_departments_phase1.sql
+```
+
 ### Docker (optional)
 Run MySQL + backend:
 ```

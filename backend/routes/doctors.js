@@ -6,7 +6,18 @@ const db = require("../config/db");
 // GET all doctors
 // ========================
 router.get("/", (req, res) => {
-    db.query("SELECT * FROM doctors", (err, results) => {
+    const sql = `
+      SELECT
+        d.id,
+        d.name,
+        d.department_id,
+        COALESCE(dep.name, d.department) AS department
+      FROM doctors d
+      LEFT JOIN departments dep ON dep.id = d.department_id
+      ORDER BY d.id DESC
+    `;
+
+    db.query(sql, (err, results) => {
         if (err) return res.status(500).json(err);
         res.json(results);
     });
@@ -16,13 +27,28 @@ router.get("/", (req, res) => {
 // ADD doctor
 // ========================
 router.post("/add", (req, res) => {
-    const { name, department } = req.body;
+    const name = String(req.body?.name || "").trim();
+    const departmentId = Number(req.body?.department_id);
 
-    const sql =
-        "INSERT INTO doctors(name, department) VALUES (?, ?)";
+    if (name.length < 2) {
+      return res.status(400).json({ message: "Name must be at least 2 characters" });
+    }
+    if (!Number.isInteger(departmentId) || departmentId <= 0) {
+      return res.status(400).json({ message: "Valid department_id is required" });
+    }
 
-    db.query(sql, [name, department], (err, result) => {
+    const sql = `
+      INSERT INTO doctors (name, department, department_id)
+      SELECT ?, dep.name, dep.id
+      FROM departments dep
+      WHERE dep.id = ?
+    `;
+
+    db.query(sql, [name, departmentId], (err, result) => {
         if (err) return res.status(500).json(err);
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ message: "Department not found" });
+        }
 
         res.json({
             message: "Doctor added successfully",
@@ -51,14 +77,32 @@ router.delete("/delete/:id", (req, res) => {
 // UPDATE doctor
 // ========================
 router.put("/update/:id", (req, res) => {
-    const id = req.params.id;
-    const { name, department } = req.body;
+    const id = Number(req.params.id);
+    const name = String(req.body?.name || "").trim();
+    const departmentId = Number(req.body?.department_id);
 
-    const sql =
-        "UPDATE doctors SET name=?, department=? WHERE id=?";
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: "Valid id is required" });
+    }
+    if (name.length < 2) {
+      return res.status(400).json({ message: "Name must be at least 2 characters" });
+    }
+    if (!Number.isInteger(departmentId) || departmentId <= 0) {
+      return res.status(400).json({ message: "Valid department_id is required" });
+    }
 
-    db.query(sql, [name, department, id], (err) => {
+    const sql = `
+      UPDATE doctors d
+      JOIN departments dep ON dep.id = ?
+      SET d.name = ?, d.department = dep.name, d.department_id = dep.id
+      WHERE d.id = ?
+    `;
+
+    db.query(sql, [departmentId, name, id], (err, result) => {
         if (err) return res.status(500).json(err);
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ message: "Doctor or department not found" });
+        }
         res.json({ message: "Doctor updated" });
     });
 });

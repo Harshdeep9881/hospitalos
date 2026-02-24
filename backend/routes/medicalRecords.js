@@ -38,7 +38,7 @@ router.get("/", (req, res) => {
       mr.doctor_id,
       p.name AS patient_name,
       d.name AS doctor_name,
-      d.department AS doctor_department,
+      COALESCE(dep.name, d.department) AS doctor_department,
       mr.visit_date,
       mr.diagnosis,
       mr.notes,
@@ -47,6 +47,7 @@ router.get("/", (req, res) => {
     FROM medical_records mr
     JOIN patients p ON mr.patient_id = p.id
     JOIN doctors d ON mr.doctor_id = d.id
+    LEFT JOIN departments dep ON dep.id = d.department_id
     ORDER BY mr.visit_date DESC, mr.id DESC
   `;
 
@@ -68,7 +69,7 @@ router.get("/patient/:patientId", (req, res) => {
       mr.patient_id,
       mr.doctor_id,
       d.name AS doctor_name,
-      d.department AS doctor_department,
+      COALESCE(dep.name, d.department) AS doctor_department,
       mr.visit_date,
       mr.diagnosis,
       mr.notes,
@@ -76,6 +77,7 @@ router.get("/patient/:patientId", (req, res) => {
       mr.updated_at
     FROM medical_records mr
     JOIN doctors d ON mr.doctor_id = d.id
+    LEFT JOIN departments dep ON dep.id = d.department_id
     WHERE mr.patient_id = ?
     ORDER BY mr.visit_date DESC, mr.id DESC
   `;

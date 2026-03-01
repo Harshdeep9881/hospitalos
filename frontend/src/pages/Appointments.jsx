@@ -18,11 +18,34 @@ export default function Appointments() {
   const [editingId, setEditingId] = useState(null);
   const { push } = useToast();
 
+  const normalizeDateForInput = (value) => {
+    const raw = String(value || "");
+    if (!raw) return "";
+    if (raw.includes("T")) return raw.slice(0, 10);
+    return raw.slice(0, 10);
+  };
+
+  const normalizeTimeForInput = (value) => {
+    const raw = String(value || "");
+    if (!raw) return "";
+    return raw.slice(0, 5);
+  };
+
   useEffect(() => {
-    api.get("/appointments").then(res => setAppointments(res.data));
-    api.get("/patients").then(res => setPatients(res.data));
-    api.get("/doctors").then(res => setDoctors(res.data));
-  }, []);
+    Promise.all([
+      api.get("/appointments"),
+      api.get("/patients"),
+      api.get("/doctors"),
+    ])
+      .then(([appointmentsRes, patientsRes, doctorsRes]) => {
+        setAppointments(appointmentsRes.data);
+        setPatients(patientsRes.data);
+        setDoctors(doctorsRes.data);
+      })
+      .catch(() => {
+        push("Failed to load appointment data.", "error");
+      });
+  }, [push]);
 
   const validate = () => {
     const next = {};
@@ -74,8 +97,8 @@ export default function Appointments() {
     setForm({
       patient_id: String(appointment.patient_id || ""),
       doctor_id: String(appointment.doctor_id || ""),
-      appointment_date: appointment.appointment_date || "",
-      appointment_time: appointment.appointment_time || "",
+      appointment_date: normalizeDateForInput(appointment.appointment_date),
+      appointment_time: normalizeTimeForInput(appointment.appointment_time),
     });
     setErrors({});
   };

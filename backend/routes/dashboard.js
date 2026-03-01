@@ -8,10 +8,21 @@ const db = require("../config/db");
 router.get("/summary", (req, res) => {
   const sql = `
     SELECT
-      (SELECT COUNT(*) FROM appointments WHERE appointment_date = CURDATE()) AS todaysAppointments,
-      (SELECT COUNT(*) FROM appointments WHERE appointment_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)) AS yesterdaysAppointments,
+      (SELECT COUNT(*)
+       FROM appointments a
+       JOIN doctors d ON d.id = a.doctor_id
+       JOIN patients p ON p.id = a.patient_id
+       WHERE a.appointment_date = CURDATE()) AS todaysAppointments,
+      (SELECT COUNT(*)
+       FROM appointments a
+       JOIN doctors d ON d.id = a.doctor_id
+       JOIN patients p ON p.id = a.patient_id
+       WHERE a.appointment_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)) AS yesterdaysAppointments,
       (SELECT COUNT(*) FROM doctors) AS totalDoctors,
-      (SELECT COUNT(DISTINCT doctor_id) FROM appointments WHERE appointment_date = CURDATE()) AS scheduledDoctors
+      (SELECT COUNT(DISTINCT a.doctor_id)
+       FROM appointments a
+       JOIN doctors d ON d.id = a.doctor_id
+       WHERE a.appointment_date = CURDATE()) AS scheduledDoctors
   `;
 
   db.query(sql, (err, results) => {

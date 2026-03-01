@@ -79,6 +79,12 @@ Run this once to normalize doctor departments into a `departments` table:
 source backend/sql/003_departments_phase1.sql
 ```
 
+### Department enrichment migration (more departments + descriptions)
+Run this to insert additional departments and set descriptions for all departments (including existing ones):
+```
+source backend/sql/004_departments_descriptions_seed.sql
+```
+
 ### Docker (optional)
 Run MySQL + backend:
 ```
